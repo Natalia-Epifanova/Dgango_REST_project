@@ -13,11 +13,6 @@ class Course(models.Model):
         verbose_name_plural = "Курсы"
 
     def __str__(self):
-        """
-        Строковое представление курса.
-        Returns:
-            str: Название курса.
-        """
         return self.name
 
 
@@ -39,9 +34,4 @@ class Lesson(models.Model):
         verbose_name_plural = "Уроки"
 
     def __str__(self):
-        """
-        Строковое представление урока.
-        Returns:
-            str: Название урока.
-        """
         return self.name
