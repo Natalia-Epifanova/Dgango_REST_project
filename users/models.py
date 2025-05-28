@@ -6,6 +6,7 @@ from materials.models import Course, Lesson
 
 class User(AbstractUser):
     username = None
+
     email = models.EmailField(unique=True, verbose_name="Email")
     phone = models.CharField(
         max_length=35, blank=True, null=True, verbose_name="Телефон"
