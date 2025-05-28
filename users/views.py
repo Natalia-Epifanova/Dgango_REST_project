@@ -1,13 +1,16 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework.filters import OrderingFilter
-from rest_framework.generics import RetrieveAPIView, CreateAPIView, UpdateAPIView, ListAPIView, DestroyAPIView
-from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
+from rest_framework.generics import (CreateAPIView, DestroyAPIView,
+                                     ListAPIView, RetrieveAPIView,
+                                     UpdateAPIView)
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from users.models import Payments, User
-from users.serializers import PaymentSerializer, UserSerializer, UserDetailSerializer
+from users.serializers import (PaymentSerializer, UserDetailSerializer,
+                               UserSerializer)
 
 
 class UserCreateAPIView(CreateAPIView):
@@ -28,6 +31,7 @@ class UserRetrieveAPIView(RetrieveAPIView):
     def get_object(self):
         return self.request.user
 
+
 class UserUpdateAPIView(UpdateAPIView):
     serializer_class = UserDetailSerializer
     permission_classes = [IsAuthenticated]
@@ -35,10 +39,12 @@ class UserUpdateAPIView(UpdateAPIView):
     def get_object(self):
         return self.request.user
 
+
 class UserListAPIView(ListAPIView):
     serializer_class = UserDetailSerializer
     queryset = User.objects.all()
     permission_classes = [IsAdminUser]
+
 
 class UserDeleteAPIView(DestroyAPIView):
     queryset = User.objects.all()
@@ -51,6 +57,7 @@ class UserDeleteAPIView(DestroyAPIView):
         instance = self.get_object()
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class PaymentViewSet(ModelViewSet):
     queryset = Payments.objects.all()

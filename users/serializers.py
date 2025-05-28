@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from users.models import Payments, User
+
 from materials.models import Course, Lesson
+from users.models import Payments, User
 
 
 class PaymentSerializer(serializers.ModelSerializer):
@@ -33,19 +34,18 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["email", "phone", "city", "avatar", "payment_history"]
-        extra_kwargs = {
-            'password': {'write_only': True}
-        }
+        extra_kwargs = {"password": {"write_only": True}}
 
     def create(self, validated_data):
         user = User.objects.create_user(
-            email=validated_data['email'],
-            password=validated_data['password'],
-            phone=validated_data.get('phone', ''),
-            city=validated_data.get('city', ''),
-            avatar=validated_data.get('avatar', None)
+            email=validated_data["email"],
+            password=validated_data["password"],
+            phone=validated_data.get("phone", ""),
+            city=validated_data.get("city", ""),
+            avatar=validated_data.get("avatar", None),
         )
         return user
+
 
 class UserDetailSerializer(serializers.ModelSerializer):
     class Meta:
