@@ -36,15 +36,15 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ["email", "phone", "city", "avatar", "payment_history"]
         extra_kwargs = {"password": {"write_only": True}}
 
-    def create(self, validated_data):
-        user = User.objects.create_user(
-            email=validated_data["email"],
-            password=validated_data["password"],
-            phone=validated_data.get("phone", ""),
-            city=validated_data.get("city", ""),
-            avatar=validated_data.get("avatar", None),
-        )
-        return user
+    # def create(self, validated_data):
+    #     user = User.objects.create_user(
+    #         email=validated_data["email"],
+    #         password=validated_data["password"],
+    #         phone=validated_data.get("phone", ""),
+    #         city=validated_data.get("city", ""),
+    #         avatar=validated_data.get("avatar", None),
+    #     )
+    #     return user
 
 
 class UserDetailSerializer(serializers.ModelSerializer):
