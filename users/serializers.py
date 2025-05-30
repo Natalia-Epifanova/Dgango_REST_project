@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from users.models import Payments, User
+
 from materials.models import Course, Lesson
+from users.models import Payments, User
 
 
 class PaymentSerializer(serializers.ModelSerializer):
@@ -22,13 +23,22 @@ class PaymentSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserPublicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "email", "phone", "city", "avatar"]
+        read_only_fields = fields
+
+
+class UserPrivateSerializer(serializers.ModelSerializer):
     payment_history = serializers.SerializerMethodField()
 
-    def get_payment_history(self, obj):
+    @staticmethod
+    def get_payment_history(obj):
         payments = obj.payments.all().order_by("-payment_date")
         return PaymentSerializer(payments, many=True).data
 
     class Meta:
         model = User
-        fields = ["email", "phone", "city", "avatar", "payment_history"]
+        fields = ["email", "password", "phone", "city", "avatar", "payment_history"]
+        extra_kwargs = {"password": {"write_only": True}}

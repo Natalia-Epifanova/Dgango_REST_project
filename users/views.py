@@ -1,25 +1,75 @@
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import status
 from rest_framework.filters import OrderingFilter
-from rest_framework.generics import RetrieveAPIView, CreateAPIView
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.generics import (
+    CreateAPIView,
+    DestroyAPIView,
+    ListAPIView,
+    RetrieveAPIView,
+    UpdateAPIView,
+)
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from users.models import Payments, User
-from users.serializers import PaymentSerializer, UserSerializer
+from users.permissions import IsProfileOwner
+from users.serializers import (
+    PaymentSerializer,
+    UserPrivateSerializer,
+    UserPublicSerializer,
+)
 
 
-class UserRegistrationAPIView(CreateAPIView):
+class UserCreateAPIView(CreateAPIView):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = UserPrivateSerializer
     permission_classes = [AllowAny]
 
+    def perform_create(self, serializer):
+        password = serializer.validated_data.get("password")
+        print(f"Creating user with password: {password}")
+        user = serializer.save(is_active=True)
+        user.set_password(password)
+        user.save()
 
-class UserProfileView(RetrieveAPIView):
-    serializer_class = UserSerializer
+
+class UserRetrieveAPIView(RetrieveAPIView):
+
+    def get_serializer_class(self):
+        if self.request.user == self.get_object():
+            return UserPrivateSerializer
+        return UserPublicSerializer
+
+    def get_object(self):
+        return User.objects.get(pk=self.kwargs["pk"])
+
+
+class UserUpdateAPIView(UpdateAPIView):
+    serializer_class = UserPrivateSerializer
+    permission_classes = [IsAuthenticated, IsProfileOwner]
+
+    def get_object(self):
+        return self.request.user
+
+
+class UserListAPIView(ListAPIView):
+    serializer_class = UserPublicSerializer
+    queryset = User.objects.all()
+    permission_classes = [IsAdminUser]
+
+
+class UserDeleteAPIView(DestroyAPIView):
+    queryset = User.objects.all()
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
         return self.request.user
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class PaymentViewSet(ModelViewSet):
