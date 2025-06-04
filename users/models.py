@@ -70,3 +70,31 @@ class Payments(models.Model):
 
     def __str__(self):
         return f"Платеж {self.user} на сумму {self.payment_amount}"
+
+
+class Subscription(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Пользователь",
+        related_name="subscription",
+    )
+
+    course = models.ForeignKey(
+        "materials.Course",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Курс",
+        related_name="subscription",
+    )
+
+    class Meta:
+        verbose_name = "Подписка"
+        verbose_name_plural = "Подписки"
+        unique_together = ("user", "course")
+
+    def __str__(self):
+        return f"{self.user} подписан на {self.course}"
