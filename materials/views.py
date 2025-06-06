@@ -10,6 +10,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 
 from materials.models import Course, Lesson
+from materials.paginations import CustomPagination
 from materials.serializers import (
     CourseDetailSerializer,
     CourseSerializer,
@@ -20,6 +21,7 @@ from users.permissions import IsModerator, IsOwner
 
 class CourseViewSet(ModelViewSet):
     queryset = Course.objects.all()
+    pagination_class = CustomPagination
 
     def get_serializer_class(self):
         if self.action == "retrieve":
@@ -57,6 +59,8 @@ class LessonCreateApiView(CreateAPIView):
 class LessonListApiView(ListAPIView):
     serializer_class = LessonSerializer
 
+    pagination_class = CustomPagination
+
     def get_queryset(self):
         if self.request.user.groups.filter(name="moderators").exists():
             return Lesson.objects.all()
@@ -78,4 +82,4 @@ class LessonUpdateApiView(UpdateAPIView):
 class LessonDestroyApiView(DestroyAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
-    permission_classes = [IsAuthenticated, IsOwner, ~IsModerator]
+    permission_classes = [IsAuthenticated & (IsOwner | ~IsModerator)]

@@ -11,6 +11,7 @@ from users.views import (
     UserListAPIView,
     UserRetrieveAPIView,
     UserUpdateAPIView,
+    SubscriptionAPIView,
 )
 
 app_name = UsersConfig.name
@@ -34,4 +35,5 @@ urlpatterns = [
         TokenRefreshView.as_view(permission_classes=[AllowAny]),
         name="token_refresh",
     ),
+    path("subscriptions/", SubscriptionAPIView.as_view(), name="subscriptions"),
 ] + router.urls

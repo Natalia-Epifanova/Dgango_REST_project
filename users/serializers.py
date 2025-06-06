@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from materials.models import Course, Lesson
-from users.models import Payments, User
+from users.models import Payments, User, Subscription
 
 
 class PaymentSerializer(serializers.ModelSerializer):
@@ -42,3 +42,13 @@ class UserPrivateSerializer(serializers.ModelSerializer):
         model = User
         fields = ["email", "password", "phone", "city", "avatar", "payment_history"]
         extra_kwargs = {"password": {"write_only": True}}
+
+
+class SubscriptionSerializer(serializers.ModelSerializer):
+    course = serializers.SlugRelatedField(
+        slug_field="name", queryset=Course.objects.all()
+    )
+
+    class Meta:
+        model = Subscription
+        fields = "__all__"
