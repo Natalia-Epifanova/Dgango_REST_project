@@ -8,6 +8,7 @@ from users.models import User, Payments
 class UserAdmin(ModelAdmin):
     list_filter = ("id", "email")
 
+
 @admin.register(Payments)
 class PaymentsAdmin(ModelAdmin):
     pass

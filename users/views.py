@@ -25,7 +25,11 @@ from users.serializers import (
     UserPrivateSerializer,
     UserPublicSerializer,
 )
-from users.services import create_stripe_product, create_stripe_price, create_stripe_session
+from users.services import (
+    create_stripe_product,
+    create_stripe_price,
+    create_stripe_session,
+)
 
 
 @method_decorator(
@@ -46,8 +50,16 @@ class UserCreateAPIView(CreateAPIView):
         user.set_password(serializer.validated_data.get("password"))
         user.save()
 
-docs_params = openapi.Parameter('pk', openapi.IN_PATH, description="ID of the object to retrieve",type=openapi.TYPE_INTEGER, required=True)
+
+docs_params = openapi.Parameter(
+    "pk",
+    openapi.IN_PATH,
+    description="ID of the object to retrieve",
+    type=openapi.TYPE_INTEGER,
+    required=True,
+)
 responses = openapi.Response("Detail", UserPublicSerializer)
+
 
 @method_decorator(
     name="get",
@@ -55,7 +67,7 @@ responses = openapi.Response("Detail", UserPublicSerializer)
         manual_parameters=[docs_params],
         responses={200: responses},
         operation_description="Просмотр профиля пользователя. "
-        "Владелец профиля видит полную информацию, другие пользователи - только публичные данные."
+        "Владелец профиля видит полную информацию, другие пользователи - только публичные данные.",
     ),
 )
 class UserRetrieveAPIView(RetrieveAPIView):
@@ -65,7 +77,7 @@ class UserRetrieveAPIView(RetrieveAPIView):
 
     def get_serializer_class(self):
         # Используем get_object_or_404 для безопасного получения объекта
-        if getattr(self, 'swagger_fake_view', False):
+        if getattr(self, "swagger_fake_view", False):
             return UserPublicSerializer  # Для генерации схемы Swagger
 
         obj = self.get_object()
@@ -74,10 +86,10 @@ class UserRetrieveAPIView(RetrieveAPIView):
         return UserPublicSerializer
 
     def get_object(self):
-        if getattr(self, 'swagger_fake_view', False):
+        if getattr(self, "swagger_fake_view", False):
             return None  # Для генерации схемы Swagger
 
-        pk = self.kwargs.get('pk')
+        pk = self.kwargs.get("pk")
         return get_object_or_404(User, pk=pk)
 
 
@@ -140,27 +152,19 @@ class UserDeleteAPIView(DestroyAPIView):
 
 @method_decorator(
     name="list",
-    decorator=swagger_auto_schema(
-        operation_description="Получение списка платежей."
-    ),
+    decorator=swagger_auto_schema(operation_description="Получение списка платежей."),
 )
 @method_decorator(
     name="create",
-    decorator=swagger_auto_schema(
-        operation_description="Создание записи о платеже."
-    ),
+    decorator=swagger_auto_schema(operation_description="Создание записи о платеже."),
 )
 @method_decorator(
     name="retrieve",
-    decorator=swagger_auto_schema(
-        operation_description="Просмотр деталей платежа."
-    ),
+    decorator=swagger_auto_schema(operation_description="Просмотр деталей платежа."),
 )
 @method_decorator(
     name="update",
-    decorator=swagger_auto_schema(
-        operation_description="Обновление записи о платеже."
-    ),
+    decorator=swagger_auto_schema(operation_description="Обновление записи о платеже."),
 )
 @method_decorator(
     name="partial_update",
@@ -170,9 +174,7 @@ class UserDeleteAPIView(DestroyAPIView):
 )
 @method_decorator(
     name="destroy",
-    decorator=swagger_auto_schema(
-        operation_description="Удаление записи о платеже."
-    ),
+    decorator=swagger_auto_schema(operation_description="Удаление записи о платеже."),
 )
 class PaymentViewSet(ModelViewSet):
     """ViewSet для работы с платежами."""
@@ -195,9 +197,7 @@ class PaymentViewSet(ModelViewSet):
 
         except Exception as e:
             print(f"Error during payment creation: {str(e)}")
-            raise serializers.ValidationError(
-                f"Ошибка при создании платежа: {str(e)}"
-            )
+            raise serializers.ValidationError(f"Ошибка при создании платежа: {str(e)}")
 
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_fields = ["paid_course", "paid_lesson", "payment_method"]

@@ -74,9 +74,11 @@ class Payments(models.Model):
     stripe_session_id = models.CharField(max_length=100, blank=True, null=True)
     stripe_payment_link = models.URLField(max_length=500, blank=True, null=True)
     payment_status = models.CharField(
-        max_length=10, choices=PAYMENT_STATUS_CHOICES, default="pending", verbose_name="Статус платежа"
+        max_length=10,
+        choices=PAYMENT_STATUS_CHOICES,
+        default="pending",
+        verbose_name="Статус платежа",
     )
-
 
     class Meta:
         verbose_name = "Платеж"

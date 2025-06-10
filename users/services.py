@@ -5,9 +5,11 @@ from config.settings import STRIPE_API_KEY
 stripe.api_key = STRIPE_API_KEY
 product = stripe.Product.create(name="Gold Plan")
 
+
 def create_stripe_product(course):
     """Создание stripe продукта."""
     return stripe.Product.create(name=course.name)
+
 
 def create_stripe_price(amount, product_id):
     """Создание stripe цены."""
@@ -16,6 +18,7 @@ def create_stripe_price(amount, product_id):
         unit_amount=int(amount * 100),
         product=product_id,
     )
+
 
 def create_stripe_session(price_id):
     """Создание сессии на оплату в stripe."""
