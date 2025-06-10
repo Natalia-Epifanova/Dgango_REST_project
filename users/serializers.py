@@ -5,22 +5,31 @@ from users.models import Payments, User, Subscription
 
 
 class PaymentSerializer(serializers.ModelSerializer):
-    paid_course = serializers.SlugRelatedField(
-        slug_field="name",
+    paid_course = serializers.PrimaryKeyRelatedField(
         queryset=Course.objects.all(),
         required=False,
-        allow_null=True,
+        allow_null=True
     )
-    paid_lesson = serializers.SlugRelatedField(
-        slug_field="name",
+    paid_lesson = serializers.PrimaryKeyRelatedField(
         queryset=Lesson.objects.all(),
         required=False,
-        allow_null=True,
+        allow_null=True
     )
 
     class Meta:
         model = Payments
         fields = "__all__"
+        read_only_fields = ('user', 'payment_date', 'stripe_product_id',
+                            'stripe_price_id', 'stripe_session_id',
+                            'stripe_payment_link')
+
+    def create(self, validated_data):
+        validated_data['user'] = self.context['request'].user
+
+        if not validated_data.get('paid_course') and not validated_data.get('paid_lesson'):
+            raise serializers.ValidationError("Необходимо указать либо курс, либо урок")
+
+        return super().create(validated_data)
 
 
 class UserPublicSerializer(serializers.ModelSerializer):
