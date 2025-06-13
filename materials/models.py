@@ -14,6 +14,7 @@ class Course(models.Model):
         blank=True,
         verbose_name="Создатель",
     )
+    last_update = models.DateTimeField(auto_now=True, verbose_name="Последнее обновление")
 
     class Meta:
         verbose_name = "Курс"
