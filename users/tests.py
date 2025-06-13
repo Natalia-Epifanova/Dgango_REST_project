@@ -37,7 +37,6 @@ class SubscriptionTestCase(APITestCase):
         )
         self.assertIn("Подписка удалена", response.data["message"])
 
-
     def test_subscription_without_course_id(self):
         """Проверка обработки запроса без course_id"""
         url = reverse("users:subscriptions")

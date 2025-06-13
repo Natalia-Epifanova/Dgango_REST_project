@@ -17,22 +17,18 @@ class LessonTestCase(APITestCase):
         self.moderator_user.groups.add(moderators_group)
 
         self.course = Course.objects.create(name="Тестовый курс")
-        self.lesson = Lesson.objects.create(name="Тестовый урок", course=self.course, owner=self.user)
+        self.lesson = Lesson.objects.create(
+            name="Тестовый урок", course=self.course, owner=self.user
+        )
         self.client.force_authenticate(user=self.user)
-
-
 
     def test_lesson_retrieve(self):
         """Проверка просмотра своего урока обычным пользователем"""
-        url = reverse("materials:lesson_detail", args=(self.lesson.pk, ))
+        url = reverse("materials:lesson_detail", args=(self.lesson.pk,))
         response = self.client.get(url)
         data = response.json()
-        self.assertEqual(
-            response.status_code, status.HTTP_200_OK
-        )
-        self.assertEqual(
-            data.get("name"), self.lesson.name
-        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(data.get("name"), self.lesson.name)
 
     def test_lesson_create(self):
         """Проверка создания своего урока обычным пользователем"""
@@ -40,41 +36,27 @@ class LessonTestCase(APITestCase):
         data = {
             "name": "Тестовый урок номер 2",
             "video_link": "https://youtube.com/video.mp4",
-            "course": self.course.pk
+            "course": self.course.pk,
         }
         response = self.client.post(url, data)
-        self.assertEqual(
-            response.status_code, status.HTTP_201_CREATED
-        )
-        self.assertEqual(
-            Lesson.objects.all().count(), 2
-        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Lesson.objects.all().count(), 2)
 
     def test_lesson_update(self):
         """Проверка создания обновления своего урока обычным пользователем"""
         url = reverse("materials:lesson_update", args=(self.lesson.pk,))
-        data = {
-            "name": "Тестовый урок переименнованный"
-        }
+        data = {"name": "Тестовый урок переименнованный"}
         response = self.client.patch(url, data)
         data_response = response.json()
-        self.assertEqual(
-            response.status_code, status.HTTP_200_OK
-        )
-        self.assertEqual(
-            data_response.get("name"), "Тестовый урок переименнованный"
-        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(data_response.get("name"), "Тестовый урок переименнованный")
 
     def test_lesson_delete(self):
         """Проверка удаления своего урока обычным пользователем"""
         url = reverse("materials:lesson_destroy", args=(self.lesson.pk,))
         response = self.client.delete(url)
-        self.assertEqual(
-            response.status_code, status.HTTP_204_NO_CONTENT
-        )
-        self.assertEqual(
-            Lesson.objects.all().count(), 0
-        )
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Lesson.objects.all().count(), 0)
 
     def test_lessons_list(self):
         """Проверка просмотра списка своих уроков обычным пользователем"""
@@ -92,15 +74,12 @@ class LessonTestCase(APITestCase):
                     "description": None,
                     "preview": None,
                     "course": self.course.pk,
-                    "owner": self.user.pk
-                }, ]
+                    "owner": self.user.pk,
+                },
+            ],
         }
-        self.assertEqual(
-            response.status_code, status.HTTP_200_OK
-        )
-        self.assertEqual(
-            response.json(), result
-        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json(), result)
 
     def test_lesson_create_by_moderator_denied(self):
         """Проверка запрета создания урока модератором"""
@@ -109,7 +88,7 @@ class LessonTestCase(APITestCase):
         data = {
             "name": "Новый урок от модератора",
             "video_link": "https://youtube.com/new.mp4",
-            "course": self.course.pk
+            "course": self.course.pk,
         }
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -121,4 +100,3 @@ class LessonTestCase(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data["results"]), 1)
-
