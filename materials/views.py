@@ -1,4 +1,7 @@
+from datetime import timedelta
+
 from django.shortcuts import render
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.generics import (
@@ -19,6 +22,7 @@ from materials.serializers import (
     LessonSerializer,
 )
 from users.permissions import IsModerator, IsOwner
+from materials.tasks import send_course_update_notification
 
 
 @method_decorator(
@@ -86,6 +90,12 @@ class CourseViewSet(ModelViewSet):
         elif self.action == "destroy":
             self.permission_classes = [IsOwner | ~IsModerator]
         return super().get_permissions()
+
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        time_threshold = timezone.now() - timedelta(hours=4)
+        if instance.last_update < time_threshold:
+            send_course_update_notification.delay(instance.id)
 
 
 @method_decorator(
@@ -162,6 +172,14 @@ class LessonUpdateApiView(UpdateAPIView):
     serializer_class = LessonSerializer
     permission_classes = [IsAuthenticated, IsModerator | IsOwner]
 
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        course = instance.course
+        time_threshold = timezone.now() - timedelta(hours=4)
+        if course.last_update < time_threshold:
+            course.last_update = timezone.now()
+            course.save()
+            send_course_update_notification.delay(course.id)
 
 @method_decorator(
     name="delete",
